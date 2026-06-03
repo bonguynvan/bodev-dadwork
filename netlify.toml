@@ -1,0 +1,8 @@
+# Netlify deploy config — https://docs.netlify.com/configure-builds/file-based-configuration/
+# Security + cache headers live in public/_headers (Netlify reads it automatically).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

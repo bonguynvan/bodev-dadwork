@@ -1,0 +1,117 @@
+---
+import '../styles/global.css';
+import CommandPalette from '../components/app/CommandPalette';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title = 'bodev.vn — Theo dõi bé từ thai kỳ tới 2 tuổi + cộng đồng bố mẹ dev',
+  description =
+    'Xem bé phát triển thế nào mỗi tuần và mỗi tháng sau sinh: kích thước, cột mốc, việc bố nên làm. Commit hành trình làm bố mẹ cùng cộng đồng dev. Local-first, không cần đăng nhập.',
+  ogImage = '/og/home.png',
+} = Astro.props;
+
+const SITE = Astro.site ?? new URL('https://bodev.vn');
+const canonical = new URL(Astro.url.pathname, SITE).href;
+const ogImageUrl = new URL(ogImage, SITE).href;
+
+const FONTS_HREF =
+  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap';
+---
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (function () {
+        var KEY = 'bodev:theme';
+        function stored() {
+          try {
+            return localStorage.getItem(KEY);
+          } catch (e) {
+            return null;
+          }
+        }
+        function sysDark() {
+          try {
+            return matchMedia('(prefers-color-scheme: dark)').matches;
+          } catch (e) {
+            return false;
+          }
+        }
+        function resolve(p) {
+          return p === 'dark' || (p !== 'light' && sysDark()) ? 'dark' : 'light';
+        }
+        function apply(p) {
+          var eff = resolve(p);
+          var el = document.documentElement;
+          el.classList.toggle('dark', eff === 'dark');
+          el.setAttribute('data-theme', eff);
+        }
+        apply(stored() || 'system');
+        window.__theme = {
+          get: function () {
+            return stored() || 'system';
+          },
+          effective: function () {
+            return resolve(stored() || 'system');
+          },
+          set: function (p) {
+            try {
+              localStorage.setItem(KEY, p);
+            } catch (e) {}
+            apply(p);
+            dispatchEvent(new CustomEvent('theme-change', { detail: p }));
+          },
+          toggle: function () {
+            this.set(this.effective() === 'dark' ? 'light' : 'dark');
+          },
+        };
+        try {
+          matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+            if ((stored() || 'system') === 'system') {
+              apply('system');
+              dispatchEvent(new CustomEvent('theme-change', { detail: 'system' }));
+            }
+          });
+        } catch (e) {}
+        requestAnimationFrame(function () {
+          requestAnimationFrame(function () {
+            document.documentElement.classList.add('theme-anim');
+          });
+        });
+      })();
+    </script>
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <link rel="canonical" href={canonical} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="bodev.vn" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="theme-color" content="#1D9E75" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href={FONTS_HREF} />
+  </head>
+
+  <body class="bg-surface text-ink">
+    <slot />
+    <CommandPalette client:idle />
+  </body>
+</html>

@@ -1,0 +1,130 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import BabyTool from '../../components/tool/BabyTool';
+import { WEEKS, getWeek, trimesterLabel, weeksRemaining } from '../../lib/pregnancy';
+import type { WeekInfo } from '../../lib/pregnancy';
+
+export function getStaticPaths() {
+  return WEEKS.map((info) => ({ params: { week: String(info.week) }, props: { info } }));
+}
+
+interface Props {
+  info: WeekInfo;
+}
+const { info } = Astro.props as Props;
+const w = info.week;
+const prev = w > 4 ? w - 1 : null;
+const next = w < 40 ? w + 1 : null;
+
+const weightStr = info.weightG >= 1000 ? `${(info.weightG / 1000).toFixed(2)} kg` : `${info.weightG} g`;
+
+const title = `Thai ${w} tuần: bé phát triển thế nào, kích thước & cột mốc`;
+const description = `Tuần thai thứ ${w}: bé dài khoảng ${info.lengthCm}cm, nặng ${weightStr} — cỡ ${info.compare}. ${info.milestone}. Xem mô hình 3D và theo dõi bé của bạn.`;
+
+const trimesterNote =
+  info.trimester === 1
+    ? 'Giai đoạn nền móng — các cơ quan chính đang được dựng lên. Mẹ nghỉ ngơi nhiều, bổ sung axit folic.'
+    : info.trimester === 2
+      ? 'Giai đoạn "ổn định" — bé lớn nhanh, mẹ thường dễ chịu hơn và bắt đầu cảm nhận cử động.'
+      : 'Giai đoạn về đích — bé tăng cân nhanh và chuẩn bị cho ngày "release". Theo dõi cử động thai mỗi ngày.';
+
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  inLanguage: 'vi',
+  about: `thai kỳ tuần ${w}`,
+};
+---
+
+<ToolLayout title={`${title} | bodev.vn`} description={description} ogImage={`/og/tuan-${w}.png`}>
+  <article class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+    <nav aria-label="breadcrumb" class="font-mono text-xs text-muted">
+      <a href="/thai-ky" class="hover:text-accent-ink">thai kỳ</a>
+      <span class="mx-1 text-hair/20">/</span>
+      <span class="text-ink">tuần {w}</span>
+    </nav>
+
+    <header class="mt-5 max-w-3xl">
+      <p class="font-mono text-xs text-muted"><span class="text-accent-ink">//</span> thai kỳ tracker · xem bằng 3D</p>
+      <h1 class="mt-2 font-serif text-[2rem] font-semibold leading-[1.1] tracking-tight text-ink md:text-[2.75rem]">
+        Thai {w} tuần: bé phát triển thế nào?
+      </h1>
+      <p class="mt-3 font-serif text-lg leading-relaxed text-muted">
+        Bé dài khoảng {info.lengthCm}cm, nặng {weightStr} — cỡ {info.compare} {info.emoji}. Xoay mô
+        hình 3D và đếm ngược tới ngày dự sinh.
+      </p>
+    </header>
+
+    <div class="mt-7">
+      <BabyTool initialWeek={w} variant="page" client:load />
+    </div>
+
+    <hr class="my-10 border-t border-hair/10" />
+
+    <div class="grid gap-8 md:grid-cols-2">
+      <section>
+        <h2 class="font-serif text-2xl font-semibold text-ink">Bé tuần {w} to cỡ nào?</h2>
+        <p class="mt-3 font-serif text-[1.05rem] leading-relaxed text-ink">
+          Ở tuần thai thứ {w}, bé dài khoảng <strong>{info.lengthCm} cm</strong> và nặng tầm{' '}
+          <strong>{weightStr}</strong> — tức là xấp xỉ <strong>{info.compare}</strong> {info.emoji}
+          (hoặc dễ hình dung hơn: bằng một quả {info.fruit}).
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-serif text-2xl font-semibold text-ink">Cột mốc tuần này</h2>
+        <p class="mt-3 flex gap-2 font-serif text-[1.05rem] leading-relaxed text-ink">
+          <span aria-hidden="true" class="text-accent-ink">▸</span>
+          <span>{info.milestone}</span>
+        </p>
+        <p class="mt-3 font-mono text-xs leading-relaxed text-muted">
+          {trimesterLabel(info.trimester)} · còn {weeksRemaining(w)} tuần nữa tới ngày dự sinh (v1.0.0 🚀)
+        </p>
+      </section>
+
+      <section class="md:col-span-2">
+        <h2 class="font-serif text-2xl font-semibold text-ink">Giai đoạn này cần lưu ý gì?</h2>
+        <p class="mt-3 max-w-2xl font-serif text-[1.05rem] leading-relaxed text-ink">{trimesterNote}</p>
+        <p class="mt-3 font-mono text-[0.7rem] text-muted/70">
+          * Số liệu là giá trị trung bình tham khảo. Mỗi bé phát triển một nhịp khác nhau — hãy theo
+          lịch khám của bác sĩ.
+        </p>
+      </section>
+    </div>
+
+    {/* prev / next week */}
+    <nav
+      aria-label="Điều hướng tuần"
+      class="mt-10 flex items-center justify-between gap-4 border-t border-hair/10 pt-6 font-mono text-sm"
+    >
+      {
+        prev ? (
+          <a href={`/thai-ky/tuan-${prev}`} class="group inline-flex items-center gap-2 text-muted transition-colors hover:text-accent-ink">
+            <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span>
+            tuần {prev}
+          </a>
+        ) : (
+          <span class="text-muted/40">tuần {w}</span>
+        )
+      }
+      <a href="/thai-ky" class="text-muted transition-colors hover:text-accent-ink">tất cả</a>
+      {
+        next ? (
+          <a href={`/thai-ky/tuan-${next}`} class="group inline-flex items-center gap-2 text-muted transition-colors hover:text-accent-ink">
+            tuần {next}
+            <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">→</span>
+          </a>
+        ) : (
+          <a href="/be/thang-0" class="group inline-flex items-center gap-2 text-accent-ink transition-colors hover:opacity-80">
+            sau sinh 🎉
+            <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">→</span>
+          </a>
+        )
+      }
+    </nav>
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />
+</ToolLayout>

@@ -1,0 +1,58 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import ThemeToggle from '../components/app/ThemeToggle';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+const { title, description, ogImage } = Astro.props;
+---
+
+<BaseLayout title={title} description={description} ogImage={ogImage}>
+  <div class="flex min-h-screen flex-col">
+    <header class="border-b border-hair/[0.08]">
+      <nav
+        aria-label="Điều hướng"
+        class="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3 sm:px-6"
+      >
+        <a href="/" class="font-mono text-base font-bold tracking-tight text-ink">
+          bo<span class="text-accent-ink">dev</span>.vn
+          <span class="ml-1 font-normal text-muted">/ ship.log</span>
+        </a>
+        <div class="ml-auto flex items-center gap-3 font-mono text-xs lowercase">
+          <button
+            type="button"
+            onclick="window.dispatchEvent(new Event('open-cmdk'))"
+            aria-label="Tìm kiếm (Ctrl/Cmd + K)"
+            title="Tìm (⌘K)"
+            class="text-muted transition-colors hover:text-accent-ink"
+          >
+            🔍
+          </button>
+          <ThemeToggle client:idle class="inline-flex h-7 w-7 items-center justify-center rounded-full border border-hair/10 text-muted transition-colors hover:border-hair/20 hover:text-accent-ink" />
+          <span aria-hidden="true" class="text-hair/20">/</span>
+          <a href="/thai-ky" class="text-muted transition-colors hover:text-accent-ink">thai kỳ</a>
+          <span aria-hidden="true" class="text-hair/20">/</span>
+          <a href="/cong-dong" class="text-muted transition-colors hover:text-accent-ink">khám phá</a>
+          <span aria-hidden="true" class="text-hair/20">/</span>
+          <a href="/" class="text-muted transition-colors hover:text-accent-ink">feed</a>
+        </div>
+      </nav>
+    </header>
+
+    <main class="flex-1">
+      <slot />
+    </main>
+
+    <footer class="border-t border-hair/[0.08]">
+      <div
+        class="mx-auto flex max-w-5xl flex-col gap-1.5 px-4 py-7 font-mono text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-6"
+      >
+        <p>bodev.vn/ship.log — built with ☕ &amp; sleep deprivation</p>
+        <p>© 2025 · số liệu tham khảo, không thay tư vấn y tế</p>
+      </div>
+    </footer>
+  </div>
+</BaseLayout>

@@ -1,0 +1,101 @@
+---
+import '../../styles/global.css';
+import BabyCartoon from '../../components/tool/BabyCartoon';
+import { getStage } from '../../lib/stages';
+import { WEEKS } from '../../lib/pregnancy';
+import { MONTHS } from '../../lib/postpartum';
+
+export function getStaticPaths() {
+  const slugs = [
+    'home',
+    'thai-ky',
+    'cong-dong',
+    ...WEEKS.map((w) => `tuan-${w.week}`),
+    ...MONTHS.map((m) => `thang-${m.month}`),
+  ];
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const { slug = 'home' } = Astro.params;
+
+let stageValue = 20;
+let title = 'Bé lớn lên từng ngày';
+let kicker = 'theo dõi thai kỳ → 2 tuổi';
+
+if (slug.startsWith('tuan-')) {
+  const n = Number(slug.slice(5));
+  stageValue = n;
+  title = `Thai ${n} tuần`;
+  kicker = 'bé phát triển thế nào tuần này?';
+} else if (slug.startsWith('thang-')) {
+  const m = Number(slug.slice(6));
+  stageValue = 41 + m;
+  title = m === 0 ? 'Trẻ sơ sinh' : `Trẻ ${m} tháng`;
+  kicker = 'bé phát triển thế nào tháng này?';
+} else if (slug === 'thai-ky') {
+  title = 'Thai kỳ theo tuần';
+  kicker = 'tuần 4 → 2 tuổi, kèm mô hình';
+} else if (slug === 'cong-dong') {
+  title = 'Cộng đồng bố/mẹ dev';
+  stageValue = 24;
+  kicker = 'commit cuộc đời · cùng giai đoạn';
+}
+
+const st = getStage(stageValue);
+const weightStr = st.weightG >= 1000 ? `${(st.weightG / 1000).toFixed(2)} kg` : `${st.weightG} g`;
+---
+
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap"
+    />
+    <style is:global>
+      html,
+      body {
+        margin: 0;
+      }
+      .baby-float {
+        animation: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex h-[630px] w-[1200px] items-center gap-8 overflow-hidden bg-surface px-16">
+      <div class="h-[470px] w-[470px] shrink-0">
+        <BabyCartoon stage={stageValue} mood={st.mood} phase={st.phase} size={470} />
+      </div>
+
+      <div class="flex-1">
+        <p class="font-mono text-2xl text-muted">
+          bo<span class="text-accent-ink">dev</span>.vn <span class="text-black/25">/</span> ship.log
+        </p>
+
+        <h1 class="mt-3 font-serif text-[5.5rem] font-semibold leading-[1.02] tracking-tight text-ink">
+          {title}
+        </h1>
+
+        <p class="mt-4 font-serif text-4xl font-medium text-ink">
+          ≈ {st.compare} <span>{st.emoji}</span>
+        </p>
+        <p class="mt-2 font-mono text-2xl text-muted">
+          dài {st.lengthCm} cm · nặng {weightStr} · {st.version}
+        </p>
+
+        <div class="mt-6 h-3 w-[88%] overflow-hidden rounded-full bg-black/[0.07]">
+          <div class="h-full rounded-full bg-accent" style={`width:${st.pct}%`}></div>
+        </div>
+
+        <p class="mt-6 font-mono text-2xl text-muted">
+          <span class="text-accent-ink">▸</span> {kicker}
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

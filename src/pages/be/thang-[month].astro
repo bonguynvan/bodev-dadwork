@@ -1,0 +1,149 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import BabyTool from '../../components/tool/BabyTool';
+import { MONTHS, monthVersion } from '../../lib/postpartum';
+import type { MonthInfo } from '../../lib/postpartum';
+
+export function getStaticPaths() {
+  return MONTHS.map((info) => ({ params: { month: String(info.month) }, props: { info } }));
+}
+
+interface Props {
+  info: MonthInfo;
+}
+const { info } = Astro.props as Props;
+const m = info.month;
+const stage = 41 + m; // timeline value for this month
+const prev = m > 0 ? m - 1 : null;
+const next = m < 24 ? m + 1 : null;
+const version = monthVersion(m);
+
+const weightStr = info.weightG >= 1000 ? `${(info.weightG / 1000).toFixed(2)} kg` : `${info.weightG} g`;
+const ageLabel = m === 0 ? 'trẻ sơ sinh' : `trẻ ${m} tháng tuổi`;
+const ageShort = m === 0 ? 'Trẻ sơ sinh' : `Trẻ ${m} tháng`;
+const titleH1 = m === 0 ? 'Trẻ sơ sinh phát triển thế nào?' : `Trẻ ${m} tháng tuổi phát triển thế nào?`;
+
+const title = `${ageShort}: phát triển, cân nặng & cột mốc (${version})`;
+const description = `${ageLabel}: dài khoảng ${info.lengthCm}cm, nặng ${weightStr} — cỡ ${info.compare}. ${info.milestone}. Xem mô hình và việc bố mẹ nên làm.`;
+
+const stageNote =
+  m <= 3
+    ? 'Giai đoạn sơ sinh — ăn, ngủ, da kề da. Theo dõi cân nặng và lịch tiêm chủng đều đặn.'
+    : m <= 6
+      ? 'Bắt đầu ăn dặm, biết lẫy rồi ngồi, có thể chớm mọc răng. Cho bé khám phá an toàn.'
+      : m <= 12
+        ? 'Bò, vịn đứng rồi tập đi — cần baby-proof nhà cửa và chơi vận động cùng bé.'
+        : 'Tập đi vững, học nói nhanh, có cơn ăn vạ đầu đời — kiên nhẫn, chơi mà học.';
+
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  inLanguage: 'vi',
+  about: ageLabel,
+};
+---
+
+<ToolLayout title={`${title} | bodev.vn`} description={description} ogImage={`/og/thang-${m}.png`}>
+  <article class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+    <nav aria-label="breadcrumb" class="font-mono text-xs text-muted">
+      <a href="/thai-ky" class="hover:text-accent-ink">thai kỳ</a>
+      <span class="mx-1 text-hair/20">/</span>
+      <a href="/thai-ky#sau-sinh" class="hover:text-accent-ink">sau sinh</a>
+      <span class="mx-1 text-hair/20">/</span>
+      <span class="text-ink">{m === 0 ? 'sơ sinh' : `tháng ${m}`}</span>
+    </nav>
+
+    <header class="mt-5 max-w-3xl">
+      <p class="font-mono text-xs text-muted">
+        <span class="text-accent-ink">//</span> theo dõi bé · {version} · sau sinh 🎉
+      </p>
+      <h1 class="mt-2 font-serif text-[2rem] font-semibold leading-[1.1] tracking-tight text-ink md:text-[2.75rem]">
+        {titleH1}
+      </h1>
+      <p class="mt-3 font-serif text-lg leading-relaxed text-muted">
+        {ageShort} dài khoảng {info.lengthCm}cm, nặng {weightStr} — cỡ {info.compare} {info.emoji}. Xem
+        bé lớn cỡ nào và việc bố mẹ nên làm tháng này.
+      </p>
+    </header>
+
+    <div class="mt-7">
+      <BabyTool initialWeek={stage} variant="page" client:load />
+    </div>
+
+    <hr class="my-10 border-t border-hair/10" />
+
+    <div class="grid gap-8 md:grid-cols-2">
+      <section>
+        <h2 class="font-serif text-2xl font-semibold text-ink">{ageShort} to cỡ nào?</h2>
+        <p class="mt-3 font-serif text-[1.05rem] leading-relaxed text-ink">
+          Ở giai đoạn này bé dài khoảng <strong>{info.lengthCm} cm</strong> và nặng tầm{' '}
+          <strong>{weightStr}</strong> — xấp xỉ <strong>{info.compare}</strong> {info.emoji}.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="font-serif text-2xl font-semibold text-ink">Cột mốc tháng này</h2>
+        <p class="mt-3 flex gap-2 font-serif text-[1.05rem] leading-relaxed text-ink">
+          <span aria-hidden="true" class="text-accent-ink">▸</span>
+          <span>{info.milestone}</span>
+        </p>
+        <p class="mt-3 font-mono text-xs leading-relaxed text-muted">phiên bản hiện tại: {version}</p>
+      </section>
+
+      <section class="md:col-span-2">
+        <h2 class="font-serif text-2xl font-semibold text-ink">Việc bố mẹ nên làm</h2>
+        <ul class="mt-3 max-w-2xl space-y-2">
+          {
+            info.dad.map((task) => (
+              <li class="flex items-start gap-2 font-serif text-[1.05rem] leading-relaxed text-ink">
+                <span aria-hidden="true" class="text-accent-ink">◻</span>
+                <span>
+                  {task.t} <span class="font-mono text-xs text-muted">· {task.l}</span>
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="mt-4 max-w-2xl font-serif text-[1.02rem] leading-relaxed text-muted">{stageNote}</p>
+        <p class="mt-3 font-mono text-[0.7rem] text-muted/70">
+          * Số liệu là giá trị trung bình tham khảo — mỗi bé một nhịp khác nhau, hãy theo lịch khám
+          của bác sĩ.
+        </p>
+      </section>
+    </div>
+
+    <nav
+      aria-label="Điều hướng tháng"
+      class="mt-10 flex items-center justify-between gap-4 border-t border-hair/10 pt-6 font-mono text-sm"
+    >
+      {
+        prev !== null ? (
+          <a href={`/be/thang-${prev}`} class="group inline-flex items-center gap-2 text-muted transition-colors hover:text-accent-ink">
+            <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span>
+            {prev === 0 ? 'sơ sinh' : `tháng ${prev}`}
+          </a>
+        ) : (
+          <a href="/thai-ky/tuan-40" class="group inline-flex items-center gap-2 text-muted transition-colors hover:text-accent-ink">
+            <span aria-hidden="true" class="transition-transform group-hover:-translate-x-0.5">←</span>
+            thai kỳ
+          </a>
+        )
+      }
+      <a href="/thai-ky#sau-sinh" class="text-muted transition-colors hover:text-accent-ink">tất cả</a>
+      {
+        next !== null ? (
+          <a href={`/be/thang-${next}`} class="group inline-flex items-center gap-2 text-muted transition-colors hover:text-accent-ink">
+            tháng {next}
+            <span aria-hidden="true" class="transition-transform group-hover:translate-x-0.5">→</span>
+          </a>
+        ) : (
+          <span class="text-muted/40">2 tuổi 🎉</span>
+        )
+      }
+    </nav>
+  </article>
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />
+</ToolLayout>

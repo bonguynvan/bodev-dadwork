@@ -1,0 +1,51 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import Profile from '../../components/profile/Profile';
+import {
+  PROFILES,
+  profileCommits,
+  fauxHeat,
+  fauxStreak,
+  fauxCommitCount,
+  joinedLabelFromDays,
+} from '../../lib/profiles';
+import type { Profile as P } from '../../lib/profiles';
+import { unlockedAch } from '../../lib/achievements';
+import { hashString } from '../../lib/prng';
+
+export function getStaticPaths() {
+  return PROFILES.map((p) => ({ params: { handle: p.handle }, props: { p } }));
+}
+
+const { p } = Astro.props as { p: P };
+const title = `@${p.handle} — ${p.name} · hồ sơ bố/mẹ dev | bodev.vn`;
+const description = `${p.name} (@${p.handle}): ${p.bio}`;
+
+const ach = unlockedAch({
+  commitCount: fauxCommitCount(p.handle),
+  streak: fauxStreak(p.handle),
+  closedIssues: 3 + (hashString('ci-' + p.handle) % 25),
+  stageValue: p.week,
+  comments: 1,
+  reactions: 1,
+  hasBio: true,
+  nightOwl: hashString('no-' + p.handle) % 3 === 0,
+});
+---
+
+<ToolLayout title={title} description={description}>
+  <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+    <Profile
+      handle={p.handle}
+      name={p.name}
+      bio={p.bio}
+      joinedLabel={joinedLabelFromDays(p.joinedDaysAgo)}
+      stageValue={p.week}
+      commits={profileCommits(p.handle)}
+      streak={fauxStreak(p.handle)}
+      commitCount={fauxCommitCount(p.handle)}
+      heat={fauxHeat(p.handle)}
+      achievements={ach}
+    />
+  </div>
+</ToolLayout>

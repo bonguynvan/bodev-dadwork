@@ -1,0 +1,13 @@
+---
+import ToolLayout from '../layouts/ToolLayout.astro';
+import MyProfile from '../components/profile/MyProfile';
+---
+
+<ToolLayout
+  title="Hồ sơ của bạn — bodev.vn/ship.log"
+  description="Hồ sơ bố/mẹ dev của bạn: build status của bé, streak, contribution graph và lịch sử commit."
+>
+  <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+    <MyProfile client:load />
+  </div>
+</ToolLayout>

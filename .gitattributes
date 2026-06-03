@@ -1,0 +1,3 @@
+# Normalize line endings to LF so the Linux build (Vercel/Netlify/CF) is consistent.
+# Binary files (e.g. the committed OG PNGs) are auto-detected and left untouched.
+* text=auto eol=lf

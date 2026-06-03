@@ -1,0 +1,104 @@
+---
+import ToolLayout from '../../layouts/ToolLayout.astro';
+import { WEEKS } from '../../lib/pregnancy';
+import { MONTHS, monthVersion } from '../../lib/postpartum';
+
+const title = 'Thai kỳ theo tuần: bé phát triển thế nào qua từng tuần (có 3D)';
+const description =
+  'Tra cứu sự phát triển của thai nhi theo từng tuần (tuần 4–40): kích thước, cân nặng, cột mốc — kèm mô hình 3D. Nhập tuần thai để xem bé của bạn lớn cỡ nào.';
+
+const groups = [
+  { t: 1 as const, label: 'Tam cá nguyệt 1', sub: 'tuần 4–12 · nền móng' },
+  { t: 2 as const, label: 'Tam cá nguyệt 2', sub: 'tuần 13–27 · lớn nhanh' },
+  { t: 3 as const, label: 'Tam cá nguyệt 3', sub: 'tuần 28–40 · về đích' },
+];
+---
+
+<ToolLayout title={`${title} | bodev.vn`} description={description} ogImage="/og/thai-ky.png">
+  <div class="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+    <p class="font-mono text-xs text-muted">
+      <span class="text-accent-ink">//</span> thai kỳ tracker · build v1.0.0 — bé
+    </p>
+    <h1 class="mt-2 max-w-2xl font-serif text-4xl font-semibold leading-[1.1] tracking-tight text-ink md:text-5xl">
+      Bé phát triển thế nào qua từng tuần?
+    </h1>
+    <p class="mt-4 max-w-xl font-serif text-lg leading-relaxed text-muted">
+      Chọn tuần thai để xem bé lớn cỡ nào (kèm mô hình 3D xoay được), cột mốc tuần đó, và đếm ngược
+      tới ngày “release”.
+    </p>
+    <a
+      href="/"
+      class="mt-6 inline-flex items-center gap-1.5 rounded-lg bg-ink px-4 py-2 font-mono text-sm text-surface transition-opacity hover:opacity-90"
+    >
+      theo dõi bé của bạn + cộng đồng <span aria-hidden="true">→</span>
+    </a>
+
+    {
+      groups.map((g) => (
+        <section class="mt-12">
+          <div class="flex items-baseline justify-between border-b border-hair/10 pb-2">
+            <h2 class="font-mono text-sm font-medium text-ink">{g.label}</h2>
+            <span class="font-mono text-xs text-muted">{g.sub}</span>
+          </div>
+          <ul class="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+            {WEEKS.filter((w) => w.trimester === g.t).map((w) => (
+              <li>
+                <a
+                  href={`/thai-ky/tuan-${w.week}`}
+                  class="group block rounded-xl border border-hair/10 bg-card p-3.5 shadow-card transition-colors hover:border-accent/40"
+                >
+                  <div class="flex items-baseline justify-between">
+                    <span class="font-mono text-sm font-medium text-ink">tuần {w.week}</span>
+                    <span aria-hidden="true" class="text-lg">{w.emoji}</span>
+                  </div>
+                  <p class="mt-1 truncate font-mono text-[0.7rem] text-muted group-hover:text-accent-ink">
+                    ≈ {w.compare}
+                  </p>
+                  <p class="mt-0.5 font-mono text-[0.65rem] text-muted/70 tabular-nums">
+                    {w.lengthCm}cm ·{' '}
+                    {w.weightG >= 1000 ? `${(w.weightG / 1000).toFixed(1)}kg` : `${w.weightG}g`}
+                  </p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+
+    <section id="sau-sinh" class="mt-14 scroll-mt-24">
+      <div class="flex items-baseline justify-between border-b border-hair/10 pb-2">
+        <h2 class="font-mono text-sm font-medium text-ink">Sau khi sinh · v1.0 → v3.0</h2>
+        <span class="font-mono text-xs text-muted">0–24 tháng</span>
+      </div>
+      <ul class="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+        {
+          MONTHS.map((mo) => (
+            <li>
+              <a
+                href={`/be/thang-${mo.month}`}
+                class="group block rounded-xl border border-hair/10 bg-card p-3.5 shadow-card transition-colors hover:border-accent/40"
+              >
+                <div class="flex items-baseline justify-between">
+                  <span class="font-mono text-sm font-medium text-ink">
+                    {mo.month === 0 ? 'sơ sinh' : `tháng ${mo.month}`}
+                  </span>
+                  <span aria-hidden="true" class="text-lg">
+                    {mo.emoji}
+                  </span>
+                </div>
+                <p class="mt-1 truncate font-mono text-[0.7rem] text-muted group-hover:text-accent-ink">
+                  ≈ {mo.compare}
+                </p>
+                <p class="mt-0.5 font-mono text-[0.65rem] text-muted/70 tabular-nums">
+                  {monthVersion(mo.month)} ·{' '}
+                  {mo.weightG >= 1000 ? `${(mo.weightG / 1000).toFixed(1)}kg` : `${mo.weightG}g`}
+                </p>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+</ToolLayout>
