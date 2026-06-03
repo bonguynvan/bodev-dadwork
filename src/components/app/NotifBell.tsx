@@ -60,7 +60,10 @@ export default function NotifBell() {
       </button>
 
       {open && (
-        <div class="absolute right-0 z-50 mt-2 w-[min(20rem,86vw)] overflow-hidden rounded-xl border border-hair/10 bg-card shadow-2xl">
+        <div
+          class="absolute right-0 z-50 mt-2 w-[min(20rem,86vw)] overflow-hidden rounded-xl border border-hair/15 shadow-2xl ring-1 ring-hair/5"
+          style={{ backgroundColor: 'rgb(var(--c-card))' }}
+        >
           <div class="flex items-center justify-between border-b border-hair/[0.08] px-3.5 py-2.5">
             <span class="font-mono text-xs font-medium text-ink">thông báo</span>
             {unread > 0 && (

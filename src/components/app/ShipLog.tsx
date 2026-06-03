@@ -115,8 +115,8 @@ export default function ShipLog() {
               <CommunityBuilds />
               <Heatmap />
               <p class="px-1 font-mono text-[0.7rem] leading-relaxed text-muted/80">
-                mọi commit của bạn được lưu cục bộ trong trình duyệt. cộng đồng quanh bạn là mô phỏng —
-                nhưng streak thì có thật. ship mỗi ngày nhé.
+                commit của bạn được lưu riêng tư ngay trên máy bạn. ship mỗi ngày để giữ streak và
+                cùng cộng đồng bố mẹ dev lớn lên 🌱
               </p>
             </aside>
           </div>

@@ -11,6 +11,8 @@ const KEY = {
   seenAch: 'shiplog.seenach.v1',
   notifs: 'shiplog.notifs.v1',
   diary: 'shiplog.diary.v1',
+  kicks: 'shiplog.kicks.v1',
+  babylog: 'shiplog.babylog.v1',
 } as const;
 
 export interface BabyState {
@@ -81,3 +83,11 @@ export const saveNotifs = (list: Notif[]): void => write(KEY.notifs, list);
 import type { Diary } from './diary';
 export const loadDiary = (): Diary => read<Diary>(KEY.diary, {});
 export const saveDiary = (diary: Diary): void => write(KEY.diary, diary);
+
+import type { KickSession } from './kicks';
+export const loadKicks = (): KickSession[] => read<KickSession[]>(KEY.kicks, []);
+export const saveKicks = (list: KickSession[]): void => write(KEY.kicks, list);
+
+import type { LogEvent } from './babylog';
+export const loadLog = (): LogEvent[] => read<LogEvent[]>(KEY.babylog, []);
+export const saveLog = (list: LogEvent[]): void => write(KEY.babylog, list);

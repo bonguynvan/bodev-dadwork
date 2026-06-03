@@ -13,12 +13,16 @@ import {
   removeDiaryPhoto,
   streak,
   you,
+  hydrated,
+  needsOnboarding,
 } from '../../lib/store';
 import { compressImage } from '../../lib/image';
 import { renderShareCard, shareImage } from '../../lib/shareCard';
 import BabyDiary from './BabyDiary';
 import BabyCompare from './BabyCompare';
 import BabyNamer from './BabyNamer';
+import KickCounter from './KickCounter';
+import BabyLog from './BabyLog';
 
 function fmtWeight(g: number): string {
   return g >= 1000 ? `${(g / 1000).toFixed(2)} kg` : `${g} g`;
@@ -46,6 +50,7 @@ export default function BabyTool({ initialWeek, variant = 'home' }: Props) {
   const [photoErr, setPhotoErr] = useState('');
   const [shareBusy, setShareBusy] = useState(false);
   const [shareMsg, setShareMsg] = useState('');
+  const [editStage, setEditStage] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
@@ -78,6 +83,11 @@ export default function BabyTool({ initialWeek, variant = 'home' }: Props) {
 
   // when the stage changes, default back to showing that stage's photo (if any)
   useEffect(() => setShowCartoon(false), [wk]);
+
+  // once the baby is registered (onboarding done), the stage is no longer a
+  // free playground — lock the editor behind an explicit "chỉnh" affordance.
+  const registered = connected && hydrated.value && !needsOnboarding.value;
+  const showControls = !registered || editStage;
 
   const onShare = async () => {
     if (shareBusy) return;
@@ -227,59 +237,87 @@ export default function BabyTool({ initialWeek, variant = 'home' }: Props) {
             <span>{st.milestone}</span>
           </p>
 
-          {/* controls */}
-          <div class="mt-6 rounded-xl border border-hair/10 bg-card p-4 shadow-card">
-            <div class="flex items-center gap-3">
-              <button
-                type="button"
-                aria-label="lùi"
-                onClick={() => change(wk - 1)}
-                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-hair/10 font-mono text-lg text-ink transition-colors hover:bg-hair/[0.04]"
-              >
-                −
-              </button>
-              <input
-                type="range"
-                min={STAGE_MIN}
-                max={STAGE_MAX}
-                value={wk}
-                aria-label="Chọn giai đoạn"
-                onInput={(e) => change(Number((e.target as HTMLInputElement).value))}
-                class="h-2 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-hair/10 accent-accent"
-              />
-              <button
-                type="button"
-                aria-label="tiến"
-                onClick={() => change(wk + 1)}
-                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-hair/10 font-mono text-lg text-ink transition-colors hover:bg-hair/[0.04]"
-              >
-                +
-              </button>
-            </div>
-
-            <div class="mt-2 flex items-center justify-between font-mono text-[0.65rem] text-muted/70">
-              <span>thai kỳ</span>
-              <span class="text-accent-ink">● sinh (tuần 40)</span>
-              <span>2 tuổi</span>
-            </div>
-
-            {connected && womb && (
-              <div class="mt-2 flex flex-wrap items-center gap-2 border-t border-hair/[0.06] pt-3 font-mono text-xs text-muted">
-                <label class="flex items-center gap-2">
-                  ngày dự sinh:
-                  <input
-                    type="date"
-                    value={mounted && dueDate.value ? toInputDate(dueDate.value) : ''}
-                    onChange={(e) => {
-                      const v = (e.target as HTMLInputElement).value;
-                      if (v) setDueDateMs(Date.parse(v));
-                    }}
-                    class="rounded border border-hair/15 bg-surface px-2 py-1 text-ink focus:outline-none"
-                  />
-                </label>
+          {/* controls — collapse to a locked summary once the baby is registered */}
+          {showControls ? (
+            <div class="mt-6 rounded-xl border border-hair/10 bg-card p-4 shadow-card">
+              <div class="flex items-center gap-3">
+                <button
+                  type="button"
+                  aria-label="lùi"
+                  onClick={() => change(wk - 1)}
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-hair/10 font-mono text-lg text-ink transition-colors hover:bg-hair/[0.04]"
+                >
+                  −
+                </button>
+                <input
+                  type="range"
+                  min={STAGE_MIN}
+                  max={STAGE_MAX}
+                  value={wk}
+                  aria-label="Chọn giai đoạn"
+                  onInput={(e) => change(Number((e.target as HTMLInputElement).value))}
+                  class="h-2 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-hair/10 accent-accent"
+                />
+                <button
+                  type="button"
+                  aria-label="tiến"
+                  onClick={() => change(wk + 1)}
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-hair/10 font-mono text-lg text-ink transition-colors hover:bg-hair/[0.04]"
+                >
+                  +
+                </button>
               </div>
-            )}
-          </div>
+
+              <div class="mt-2 flex items-center justify-between font-mono text-[0.65rem] text-muted/70">
+                <span>thai kỳ</span>
+                <span class="text-accent-ink">● sinh (tuần 40)</span>
+                <span>2 tuổi</span>
+              </div>
+
+              {connected && womb && (
+                <div class="mt-2 flex flex-wrap items-center gap-2 border-t border-hair/[0.06] pt-3 font-mono text-xs text-muted">
+                  <label class="flex items-center gap-2">
+                    ngày dự sinh:
+                    <input
+                      type="date"
+                      value={mounted && dueDate.value ? toInputDate(dueDate.value) : ''}
+                      onChange={(e) => {
+                        const v = (e.target as HTMLInputElement).value;
+                        if (v) setDueDateMs(Date.parse(v));
+                      }}
+                      class="rounded border border-hair/15 bg-surface px-2 py-1 text-ink focus:outline-none"
+                    />
+                  </label>
+                </div>
+              )}
+
+              {registered && (
+                <div class="mt-3 flex justify-end border-t border-hair/[0.06] pt-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setEditStage(false)}
+                    class="font-mono text-[0.7rem] text-accent-ink transition-colors hover:text-accent"
+                  >
+                    ✓ xong
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div class="mt-6 flex items-center justify-between rounded-xl border border-hair/10 bg-card px-4 py-3 shadow-card">
+              <span class="font-mono text-xs text-muted">
+                <span class="text-accent-ink" aria-hidden="true">●</span>{' '}
+                {womb ? `thai kỳ · tuần ${st.week}/40` : `sau sinh · ${st.label}`}
+              </span>
+              <button
+                type="button"
+                onClick={() => setEditStage(true)}
+                class="font-mono text-xs text-muted transition-colors hover:text-accent-ink"
+              >
+                ✏️ chỉnh
+              </button>
+            </div>
+          )}
 
           {/* status / ETA */}
           <div class="mt-4 flex flex-wrap items-baseline gap-x-3 gap-y-1 font-mono text-sm">
@@ -342,6 +380,17 @@ export default function BabyTool({ initialWeek, variant = 'home' }: Props) {
           </p>
         </div>
       </section>
+
+      {connected && womb && (st.week ?? 0) >= 16 && (
+        <div class="mt-8 max-w-3xl">
+          <KickCounter />
+        </div>
+      )}
+      {connected && !womb && (
+        <div class="mt-8 max-w-3xl">
+          <BabyLog />
+        </div>
+      )}
 
       {connected && <BabyDiary />}
       {connected && <BabyCompare />}
