@@ -8,7 +8,7 @@ import {
   MAX_WEEK,
 } from './pregnancy';
 import type { Mood, DadTask } from './pregnancy';
-import { getMonth, monthVersion } from './postpartum';
+import { getMonth, monthVersion, monthDadTasks } from './postpartum';
 
 // One continuous slider value:
 //   4..40  → gestational week (womb)
@@ -81,7 +81,7 @@ export function getStage(v: number): StageInfo {
     emoji: info.emoji,
     milestone: info.milestone,
     mood: info.mood,
-    dad: info.dad,
+    dad: monthDadTasks(m),
     pct: Math.round((m / 24) * 100),
     month: m,
   };

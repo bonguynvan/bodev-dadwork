@@ -307,4 +307,34 @@ const DAD_TASKS: Record<number, DadTask[]> = {
   ],
 };
 
-export const dadTasks = (week: number): DadTask[] => DAD_TASKS[clampWeek(week)] ?? [];
+// general supportive tasks mixed into every week so there's more than just the 2 specific ones
+const EVERGREEN_PREG: DadTask[] = [
+  { t: 'Hỏi vợ hôm nay trong người thế nào', l: 'gắn kết' },
+  { t: 'Rửa bát & dọn nhà thay vợ hôm nay', l: 'gắn kết' },
+  { t: 'Nhắc vợ uống vitamin bầu', l: 'sức khoẻ' },
+  { t: 'Đặt sẵn nước ấm ở đầu giường cho vợ', l: 'sức khoẻ' },
+  { t: 'Đi bộ nhẹ 15 phút cùng vợ', l: 'sức khoẻ' },
+  { t: 'Khen vợ một câu thật lòng hôm nay', l: 'gắn kết' },
+  { t: 'Bỏ thêm một khoản vào quỹ cho bé', l: 'tài chính' },
+  { t: 'Đọc 1 bài về giai đoạn này của thai kỳ', l: 'học' },
+  { t: 'Xoa lưng/chân cho vợ trước khi ngủ', l: 'gắn kết' },
+  { t: 'Mua trái cây vợ thích', l: 'mua sắm' },
+  { t: 'Thêm 1 cái tên vào shortlist', l: 'học' },
+  { t: 'Ghi lại một khoảnh khắc đáng nhớ tuần này', l: 'gắn kết' },
+  { t: 'Dọn an toàn thêm một góc nhà', l: 'chuẩn bị' },
+  { t: 'Trò chuyện với bụng bầu 5 phút', l: 'gắn kết' },
+  { t: 'Nấu hoặc đặt bữa vợ đang thèm', l: 'gắn kết' },
+];
+
+/** Deterministic rotating pick from a pool so each stage shows fresh but stable extras. */
+export function pickEvergreen(pool: DadTask[], seed: number, count: number): DadTask[] {
+  const n = pool.length;
+  if (n === 0) return [];
+  const start = (((seed * 3) % n) + n) % n;
+  return Array.from({ length: Math.min(count, n) }, (_, i) => pool[(start + i) % n]);
+}
+
+export const dadTasks = (week: number): DadTask[] => {
+  const w = clampWeek(week);
+  return [...(DAD_TASKS[w] ?? []), ...pickEvergreen(EVERGREEN_PREG, w, 3)];
+};

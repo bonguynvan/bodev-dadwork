@@ -1,4 +1,5 @@
 import type { Mood, DadTask } from './pregnancy';
+import { pickEvergreen } from './pregnancy';
 
 export interface MonthInfo {
   month: number; // 0 = newborn
@@ -48,3 +49,28 @@ export const MONTHS: MonthInfo[] = [
 const BY_MONTH = new Map(MONTHS.map((m) => [m.month, m]));
 export const getMonth = (month: number): MonthInfo =>
   BY_MONTH.get(Math.max(0, Math.min(24, Math.round(month)))) ?? MONTHS[0];
+
+// general newborn/infant tasks mixed into every month for more than the 2 specific ones
+const EVERGREEN_POST: DadTask[] = [
+  { t: 'Thay tã cho bé một lần hôm nay', l: 'gắn kết' },
+  { t: 'Ru bé ngủ để vợ chợp mắt', l: 'gắn kết' },
+  { t: 'Lo cữ đêm để vợ ngủ một giấc dài', l: 'sức khoẻ' },
+  { t: 'Da kề da với bé 15 phút', l: 'gắn kết' },
+  { t: 'Hát hoặc đọc cho bé nghe', l: 'gắn kết' },
+  { t: 'Rửa & tiệt trùng bình/đồ của bé', l: 'sức khoẻ' },
+  { t: 'Đưa bé đi dạo cho vợ nghỉ', l: 'gắn kết' },
+  { t: 'Hỏi vợ cần gì hôm nay rồi làm giúp', l: 'gắn kết' },
+  { t: 'Chụp một tấm ảnh bé hôm nay 📸', l: 'gắn kết' },
+  { t: 'Kiểm tra đồ sắp hết (tã, sữa)', l: 'mua sắm' },
+  { t: 'Cùng vợ ăn một bữa tử tế', l: 'sức khoẻ' },
+  { t: 'Ghi lại một cột mốc mới của bé', l: 'học' },
+  { t: 'Cho vợ ít phút riêng / tắm lâu hơn', l: 'gắn kết' },
+  { t: 'Dọn dẹp khu vực chơi của bé', l: 'chuẩn bị' },
+  { t: 'Bỏ thêm vào quỹ học vấn của bé', l: 'tài chính' },
+];
+
+/** A month's 2 specific dad tasks + 3 rotating evergreen ones. */
+export const monthDadTasks = (month: number): DadTask[] => {
+  const m = Math.max(0, Math.min(24, Math.round(month)));
+  return [...getMonth(m).dad, ...pickEvergreen(EVERGREEN_POST, m, 3)];
+};
