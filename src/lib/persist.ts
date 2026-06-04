@@ -17,6 +17,7 @@ const KEY = {
   vaccines: 'shiplog.vaccines.v1',
   milestones: 'shiplog.milestones.v1',
   contractions: 'shiplog.contractions.v1',
+  momweight: 'shiplog.momweight.v1',
 } as const;
 
 export interface BabyState {
@@ -111,3 +112,7 @@ export const saveMilestones = (done: Record<string, number>): void => write(KEY.
 import type { Contraction } from './contractions';
 export const loadContractions = (): Contraction[] => read<Contraction[]>(KEY.contractions, []);
 export const saveContractions = (list: Contraction[]): void => write(KEY.contractions, list);
+
+import type { MomData } from './momweight';
+export const loadMom = (): MomData => read<MomData>(KEY.momweight, { entries: [] });
+export const saveMom = (data: MomData): void => write(KEY.momweight, data);

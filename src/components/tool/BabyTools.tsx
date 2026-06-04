@@ -4,6 +4,7 @@ import { you } from '../../lib/store';
 import { printHealthRecord } from '../../lib/healthRecord';
 import KickCounter from './KickCounter';
 import ContractionTimer from './ContractionTimer';
+import MomWeight from './MomWeight';
 import BabyLog from './BabyLog';
 import GrowthTracker from './GrowthTracker';
 import VaccineSchedule from './VaccineSchedule';
@@ -29,6 +30,7 @@ export default function BabyTools({ womb, month, week, version }: Props) {
     ? ([
         week >= 16 ? { key: 'kick', label: '👟 đếm cú đạp', render: () => <KickCounter /> } : null,
         week >= 34 ? { key: 'contraction', label: '⏱ cơn gò', render: () => <ContractionTimer /> } : null,
+        { key: 'mom', label: '🤰 cân nặng mẹ', render: () => <MomWeight week={week} /> },
       ].filter(Boolean) as Tab[])
     : [
         { key: 'today', label: '📋 hôm nay', render: () => <BabyLog /> },
