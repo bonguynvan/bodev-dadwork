@@ -13,6 +13,7 @@ const KEY = {
   diary: 'shiplog.diary.v1',
   kicks: 'shiplog.kicks.v1',
   babylog: 'shiplog.babylog.v1',
+  growth: 'shiplog.growth.v1',
 } as const;
 
 export interface BabyState {
@@ -91,3 +92,7 @@ export const saveKicks = (list: KickSession[]): void => write(KEY.kicks, list);
 import type { LogEvent } from './babylog';
 export const loadLog = (): LogEvent[] => read<LogEvent[]>(KEY.babylog, []);
 export const saveLog = (list: LogEvent[]): void => write(KEY.babylog, list);
+
+import type { GrowthEntry } from './growth';
+export const loadGrowth = (): GrowthEntry[] => read<GrowthEntry[]>(KEY.growth, []);
+export const saveGrowth = (list: GrowthEntry[]): void => write(KEY.growth, list);
