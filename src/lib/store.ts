@@ -23,14 +23,18 @@ import {
   saveNotifs,
   loadDiary,
   saveDiary,
+  loadVaccines,
+  loadVaxNotified,
+  saveVaxNotified,
 } from './persist';
 import { seededComments } from './comments';
 import type { Comment } from './comments';
 import type { AchState } from './achievements';
 import type { Notif } from './notifications';
-import { reactionNotif, replyNotif, achievementNotif, communityNotif, SIM_REPLIES } from './notifications';
+import { reactionNotif, replyNotif, achievementNotif, communityNotif, vaccineNotif, SIM_REPLIES } from './notifications';
 import type { Diary } from './diary';
 import { HOME_NAMES } from './names';
+import { VACCINE_SCHEDULE } from './vaccines';
 
 const MAX_FEED = 80;
 
@@ -418,6 +422,24 @@ export function notifyAboutYou(): void {
     saveComments(next);
     pushNotif(replyNotif(actor, text, target.id, at));
   }
+}
+
+/** Push inbox reminders for vaccines that have just come due and aren't done yet. */
+export function checkVaccineReminders(): void {
+  const st = getStage(babyWeek.value);
+  if (st.phase !== 'born' || st.month == null) return;
+  const month = st.month;
+  const done = loadVaccines();
+  const notified = loadVaxNotified();
+  const due = VACCINE_SCHEDULE.filter(
+    (v) => v.month >= month - 1 && v.month <= month && !done[v.id] && !notified[v.id],
+  ).slice(0, 3);
+  if (due.length === 0) return;
+  for (const v of due) {
+    pushNotif(vaccineNotif(v.name, v.month, Date.now()));
+    notified[v.id] = Date.now();
+  }
+  saveVaxNotified(notified);
 }
 
 /** Inject a simulated community commit (client-only). */

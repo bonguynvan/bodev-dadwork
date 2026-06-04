@@ -1,6 +1,6 @@
 import type { ReactionKind } from './types';
 
-export type NotifKind = 'reaction' | 'reply' | 'achievement' | 'community';
+export type NotifKind = 'reaction' | 'reply' | 'achievement' | 'community' | 'vaccine';
 
 export interface NotifActor {
   handle: string;
@@ -92,4 +92,15 @@ export function communityNotif(
   href?: string,
 ): Notif {
   return { id: nid(at), kind: 'community', at, emoji, text, actor, href, read: false };
+}
+
+export function vaccineNotif(name: string, month: number, at: number): Notif {
+  return {
+    id: nid(at),
+    kind: 'vaccine',
+    at,
+    emoji: '💉',
+    text: `Bé đến hạn tiêm: ${name} (tháng ${month})`,
+    read: false,
+  };
 }

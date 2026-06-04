@@ -18,6 +18,7 @@ const KEY = {
   milestones: 'shiplog.milestones.v1',
   contractions: 'shiplog.contractions.v1',
   momweight: 'shiplog.momweight.v1',
+  vaxnotif: 'shiplog.vaxnotif.v1',
 } as const;
 
 export interface BabyState {
@@ -116,3 +117,7 @@ export const saveContractions = (list: Contraction[]): void => write(KEY.contrac
 import type { MomData } from './momweight';
 export const loadMom = (): MomData => read<MomData>(KEY.momweight, { entries: [] });
 export const saveMom = (data: MomData): void => write(KEY.momweight, data);
+
+/** Map of vaccine id → epoch ms a "due" reminder was already pushed. */
+export const loadVaxNotified = (): Record<string, number> => read<Record<string, number>>(KEY.vaxnotif, {});
+export const saveVaxNotified = (m: Record<string, number>): void => write(KEY.vaxnotif, m);

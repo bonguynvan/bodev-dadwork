@@ -9,6 +9,7 @@ import {
   toggleReaction,
   setBabyWeek,
   notifyAboutYou,
+  checkVaccineReminders,
 } from '../../lib/store';
 import { burstConfetti } from '../../lib/confetti';
 import ParticleField from './ParticleField';
@@ -29,6 +30,7 @@ import BabyTool from '../tool/BabyTool';
 export default function ShipLog() {
   useEffect(() => {
     hydrate();
+    checkVaccineReminders();
 
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const timers: number[] = [];
