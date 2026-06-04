@@ -14,6 +14,7 @@ const KEY = {
   kicks: 'shiplog.kicks.v1',
   babylog: 'shiplog.babylog.v1',
   growth: 'shiplog.growth.v1',
+  vaccines: 'shiplog.vaccines.v1',
 } as const;
 
 export interface BabyState {
@@ -96,3 +97,7 @@ export const saveLog = (list: LogEvent[]): void => write(KEY.babylog, list);
 import type { GrowthEntry } from './growth';
 export const loadGrowth = (): GrowthEntry[] => read<GrowthEntry[]>(KEY.growth, []);
 export const saveGrowth = (list: GrowthEntry[]): void => write(KEY.growth, list);
+
+/** Map of vaccine id → epoch ms it was marked done. */
+export const loadVaccines = (): Record<string, number> => read<Record<string, number>>(KEY.vaccines, {});
+export const saveVaccines = (done: Record<string, number>): void => write(KEY.vaccines, done);

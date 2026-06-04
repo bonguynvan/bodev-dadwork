@@ -24,6 +24,7 @@ import BabyNamer from './BabyNamer';
 import KickCounter from './KickCounter';
 import BabyLog from './BabyLog';
 import GrowthTracker from './GrowthTracker';
+import VaccineSchedule from './VaccineSchedule';
 
 function fmtWeight(g: number): string {
   return g >= 1000 ? `${(g / 1000).toFixed(2)} kg` : `${g} g`;
@@ -395,6 +396,11 @@ export default function BabyTool({ initialWeek, variant = 'home' }: Props) {
       {connected && !womb && (
         <div class="mt-8 max-w-3xl">
           <GrowthTracker month={st.month ?? 0} />
+        </div>
+      )}
+      {connected && !womb && (
+        <div class="mt-8 max-w-3xl">
+          <VaccineSchedule month={st.month ?? 0} />
         </div>
       )}
 
