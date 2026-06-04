@@ -3,6 +3,7 @@ import type { ComponentChildren } from 'preact';
 import { you } from '../../lib/store';
 import { printHealthRecord } from '../../lib/healthRecord';
 import KickCounter from './KickCounter';
+import ContractionTimer from './ContractionTimer';
 import BabyLog from './BabyLog';
 import GrowthTracker from './GrowthTracker';
 import VaccineSchedule from './VaccineSchedule';
@@ -25,9 +26,10 @@ export default function BabyTools({ womb, month, week, version }: Props) {
   const [active, setActive] = useState('today');
 
   const tabs: Tab[] = womb
-    ? week >= 16
-      ? [{ key: 'kick', label: '👟 đếm cú đạp', render: () => <KickCounter /> }]
-      : []
+    ? ([
+        week >= 16 ? { key: 'kick', label: '👟 đếm cú đạp', render: () => <KickCounter /> } : null,
+        week >= 34 ? { key: 'contraction', label: '⏱ cơn gò', render: () => <ContractionTimer /> } : null,
+      ].filter(Boolean) as Tab[])
     : [
         { key: 'today', label: '📋 hôm nay', render: () => <BabyLog /> },
         { key: 'growth', label: '📈 tăng trưởng', render: () => <GrowthTracker month={month} /> },
@@ -57,14 +59,16 @@ export default function BabyTools({ womb, month, week, version }: Props) {
               {t.label}
             </button>
           ))}
-          <button
-            type="button"
-            onClick={() => printHealthRecord({ babyName: you.value?.babyName, month, version })}
-            title="In / lưu hồ sơ sức khoẻ (PDF)"
-            class="ml-auto rounded-full border border-hair/15 px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent/40 hover:text-accent-ink"
-          >
-            📄 in hồ sơ
-          </button>
+          {!womb && (
+            <button
+              type="button"
+              onClick={() => printHealthRecord({ babyName: you.value?.babyName, month, version })}
+              title="In / lưu hồ sơ sức khoẻ (PDF)"
+              class="ml-auto rounded-full border border-hair/15 px-3 py-1.5 font-mono text-xs text-muted transition-colors hover:border-accent/40 hover:text-accent-ink"
+            >
+              📄 in hồ sơ
+            </button>
+          )}
         </div>
       )}
       {activeTab.render()}

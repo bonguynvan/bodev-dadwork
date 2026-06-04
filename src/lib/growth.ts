@@ -9,6 +9,7 @@ export interface GrowthEntry {
   month: number; // baby's age in months at measurement (0–24)
   weightKg?: number;
   heightCm?: number;
+  headCm?: number; // head circumference (vòng đầu)
 }
 
 export const GROWTH_MAX = 60;

@@ -8,6 +8,8 @@ export interface LogEvent {
   id: string;
   kind: LogKind;
   at: number;
+  /** for sleep sessions: when the baby woke (absent = still sleeping) */
+  endAt?: number;
 }
 
 export const LOG_KINDS: LogKind[] = ['feed', 'sleep', 'diaper'];
