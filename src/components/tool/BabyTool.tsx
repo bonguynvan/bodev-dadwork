@@ -21,11 +21,7 @@ import { renderShareCard, shareImage } from '../../lib/shareCard';
 import BabyDiary from './BabyDiary';
 import BabyCompare from './BabyCompare';
 import BabyNamer from './BabyNamer';
-import KickCounter from './KickCounter';
-import BabyLog from './BabyLog';
-import GrowthTracker from './GrowthTracker';
-import VaccineSchedule from './VaccineSchedule';
-import Milestones from './Milestones';
+import BabyTools from './BabyTools';
 
 function fmtWeight(g: number): string {
   return g >= 1000 ? `${(g / 1000).toFixed(2)} kg` : `${g} g`;
@@ -384,31 +380,7 @@ export default function BabyTool({ initialWeek, variant = 'home' }: Props) {
         </div>
       </section>
 
-      {connected && womb && (st.week ?? 0) >= 16 && (
-        <div class="mt-8 max-w-3xl">
-          <KickCounter />
-        </div>
-      )}
-      {connected && !womb && (
-        <div class="mt-8 max-w-3xl">
-          <BabyLog />
-        </div>
-      )}
-      {connected && !womb && (
-        <div class="mt-8 max-w-3xl">
-          <GrowthTracker month={st.month ?? 0} />
-        </div>
-      )}
-      {connected && !womb && (
-        <div class="mt-8 max-w-3xl">
-          <VaccineSchedule month={st.month ?? 0} />
-        </div>
-      )}
-      {connected && !womb && (
-        <div class="mt-8 max-w-3xl">
-          <Milestones month={st.month ?? 0} />
-        </div>
-      )}
+      {connected && <BabyTools womb={womb} month={st.month ?? 0} week={st.week ?? 0} version={st.version} />}
 
       {connected && <BabyDiary />}
       {connected && <BabyCompare />}
