@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { loadLog, saveLog } from '../../lib/persist';
 import { LOG_KINDS, LOG_META, LOG_MAX, startOfToday, type LogEvent, type LogKind } from '../../lib/babylog';
-import { timeAgo } from '../../lib/time';
+import { timeAgo, epochDay } from '../../lib/time';
 
 const mmss = (ms: number): string => {
   const s = Math.max(0, Math.round(ms / 1000));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 };
+
+const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+const dayLabel = (epochD: number): string => DOW[(((epochD + 4) % 7) + 7) % 7];
 
 export default function BabyLog() {
   const ref = useRef<LogEvent[]>([]);
@@ -52,6 +55,24 @@ export default function BabyLog() {
   const lastOf = (k: LogKind) => events.find((e) => e.kind === k);
   const lastEndedSleep = events.find((e) => e.kind === 'sleep' && e.endAt);
   const recent = events.slice(0, 6);
+
+  // 7-day trend
+  const todayD = nowMs ? epochDay(nowMs) : 0;
+  const weekDays = Array.from({ length: 7 }, (_, i) => todayD - 6 + i);
+  const weekStats = nowMs
+    ? weekDays.map((d) => {
+        const de = events.filter((e) => epochDay(e.at) === d);
+        return {
+          feeds: de.filter((e) => e.kind === 'feed').length,
+          diapers: de.filter((e) => e.kind === 'diaper').length,
+          sleepMs: de.filter((e) => e.kind === 'sleep').reduce((s, e) => s + ((e.endAt ?? nowMs) - e.at), 0),
+        };
+      })
+    : [];
+  const hasWeek = weekStats.some((x) => x.feeds || x.diapers || x.sleepMs);
+  const maxFeed = Math.max(1, ...weekStats.map((x) => x.feeds));
+  const avg = (f: (x: { feeds: number; diapers: number; sleepMs: number }) => number) =>
+    weekStats.reduce((s, x) => s + f(x), 0) / 7;
 
   return (
     <section aria-label="Nhật ký bé hôm nay" class="rounded-xl border border-hair/10 bg-card p-4 shadow-card">
@@ -149,6 +170,40 @@ export default function BabyLog() {
               );
             })}
           </ul>
+        </div>
+      )}
+
+      {hasWeek && (
+        <div class="mt-4 border-t border-hair/[0.06] pt-3">
+          <p class="font-mono text-[0.66rem] text-muted/70">
+            📊 7 ngày qua · <span class="text-muted">🍼 cữ bú/ngày</span>
+          </p>
+          <div class="mt-2 flex h-14 items-end gap-1.5">
+            {weekStats.map((x, i) => (
+              <div key={weekDays[i]} class="flex h-full flex-1 flex-col items-center justify-end">
+                <div
+                  class={`w-full rounded-t ${weekDays[i] === todayD ? 'bg-accent' : 'bg-accent/45'}`}
+                  style={{ height: `${Math.round((x.feeds / maxFeed) * 100)}%`, minHeight: x.feeds ? '3px' : '0px' }}
+                  title={`${dayLabel(weekDays[i])}: ${x.feeds} cữ bú · ${x.diapers} tã`}
+                />
+              </div>
+            ))}
+          </div>
+          <div class="mt-1 flex gap-1.5">
+            {weekDays.map((d) => (
+              <span
+                key={d}
+                class={`flex-1 text-center font-mono text-[0.55rem] ${d === todayD ? 'text-accent-ink' : 'text-muted/60'}`}
+              >
+                {dayLabel(d)}
+              </span>
+            ))}
+          </div>
+          <p class="mt-2 font-mono text-[0.66rem] text-muted">
+            TB/ngày: <span class="text-ink">🍼 {avg((x) => x.feeds).toFixed(1)}</span> ·{' '}
+            <span class="text-ink">💤 {(avg((x) => x.sleepMs) / 3_600_000).toFixed(1)}h</span> ·{' '}
+            <span class="text-ink">💩 {avg((x) => x.diapers).toFixed(1)}</span>
+          </p>
         </div>
       )}
     </section>
